@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Football Reservation</string>
+    <string name="app_logo">Football Reservation Logo</string>
+    <string name="login">Login</string>
+    <string name="signup">Sign Up</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="email">Email</string>
+    <string name="forgot_password">Forgot Password?</string>
+    <string name="book_field">Book a Field</string>
+    <string name="my_reservations">My Reservations</string>
+    <string name="profile">Profile</string>
+    <string name="logout">Logout</string>
+    <string name="admin_dashboard">Admin Dashboard</string>
+    <string name="manage_fields">Manage Fields</string>
+    <string name="manage_users">Manage Users</string>
+    <string name="view_reservations">View Reservations</string>
+</resources>

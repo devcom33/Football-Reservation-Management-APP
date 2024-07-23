@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <TextView
+        android:id="@+id/tvWelcomeAdmin"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp"/>
+
+    <EditText
+        android:id="@+id/etFieldName"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter field name"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etFieldDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter field description"
+        android:layout_marginBottom="8dp"/>
+
+    <EditText
+        android:id="@+id/etFieldPrice"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter price per hour"
+        android:layout_marginBottom="8dp"
+        android:inputType="numberDecimal"/>
+
+    <EditText
+        android:id="@+id/etFieldImageUrl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Enter image URL"
+        android:layout_marginBottom="8dp"/>
+
+    <Switch
+        android:id="@+id/swFieldAvailability"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Field Available"
+        android:layout_marginBottom="16dp"/>
+
+    <Button
+        android:id="@+id/btnAddField"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Add New Field"
+        android:layout_marginBottom="16dp"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvFields"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+</LinearLayout>
