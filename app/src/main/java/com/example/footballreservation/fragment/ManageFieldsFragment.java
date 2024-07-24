@@ -14,12 +14,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.footballreservation.R;
 import com.example.footballreservation.adapter.FieldAdapter;
+import com.example.footballreservation.adapter.OnReserveClickListener;
 import com.example.footballreservation.data.DatabaseHelper;
 import com.example.footballreservation.model.Field;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class ManageFieldsFragment extends Fragment {
+public class ManageFieldsFragment extends Fragment implements OnReserveClickListener {
 
     private EditText etFieldName, etFieldDescription, etFieldPrice, etFieldImageUrl;
     private Switch swFieldAvailability;
@@ -104,19 +105,22 @@ public class ManageFieldsFragment extends Fragment {
     private void loadFields() {
         Executors.newSingleThreadExecutor().execute(() -> {
             List<Field> fields = dbHelper.getAllFields();
-            Log.d("ManageFieldsFragment", "Loaded " + fields.size() + " fields from database");
             requireActivity().runOnUiThread(() -> {
                 if (fields.isEmpty()) {
-                    showToast("No fields available");
-                    Log.d("ManageFieldsFragment", "No fields available");
+                    showInfoMessage("No fields available");
                 } else {
-                    FieldAdapter adapter = new FieldAdapter(requireContext(), fields);
-                    rvFields.setLayoutManager(new LinearLayoutManager(requireContext()));
-                    rvFields.setAdapter(adapter);
-                    Log.d("ManageFieldsFragment", "Set adapter with " + fields.size() + " fields");
+                    updateFieldList(fields);
                 }
             });
         });
+    }
+    private void showInfoMessage(String message) {
+        Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    private void updateFieldList(List<Field> fields) {
+        FieldAdapter adapter = new FieldAdapter(requireContext(), fields, this);
+        rvFields.setLayoutManager(new LinearLayoutManager(requireContext()));
+        rvFields.setAdapter(adapter);
     }
 
     private void clearInputFields() {
@@ -129,5 +133,9 @@ public class ManageFieldsFragment extends Fragment {
 
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
+    }
+    @Override
+    public void onReserveClick(Field field) {
+        Toast.makeText(requireContext(), "Reserved field: " + field.getName(), Toast.LENGTH_SHORT).show();
     }
 }

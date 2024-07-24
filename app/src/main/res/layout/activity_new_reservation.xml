@@ -1,99 +1,28 @@
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="16dp"
-    tools:context=".ReservationActivity">
+    android:orientation="vertical"
+    android:background="@color/background_color"
+    tools:context=".NewReservationActivity">
 
-    <LinearLayout
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
+        android:text="Select a Field"
+        android:textSize="24sp"
+        android:textColor="@color/primary_text_color"
         android:padding="16dp"
-        android:background="@android:color/white"
-        android:elevation="4dp"
-        android:layout_margin="8dp"
-        android:paddingVertical="24dp"
-        android:paddingHorizontal="16dp">
+        android:background="@color/primary_color"
+        android:textStyle="bold"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Field"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="12dp"
-            android:fontFamily=""/>
-        <Spinner
-            android:id="@+id/spinnerField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"/>
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnSelectField"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Select Field"
-            android:layout_marginBottom="24dp"/>
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/fieldList"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Date"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="12dp"
-            android:fontFamily=""/>
-
-        <DatePicker
-            android:id="@+id/datePicker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:datePickerMode="spinner"
-            android:calendarViewShown="false"
-            android:layout_marginBottom="24dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Start Time"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="12dp"
-            android:fontFamily=""/>
-
-        <TimePicker
-            android:id="@+id/startTimePicker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:timePickerMode="spinner"
-            android:layout_marginBottom="24dp"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="End Time"
-            android:textSize="18sp"
-            android:textColor="@android:color/black"
-            android:layout_marginBottom="12dp"
-            android:fontFamily=""/>
-
-        <TimePicker
-            android:id="@+id/endTimePicker"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:timePickerMode="spinner"
-            android:layout_marginBottom="24dp"/>
-
-        <Button
-            android:id="@+id/btnReserve"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Make Reservation"
-            android:backgroundTint="@color/colorPrimary"
-            android:textColor="@android:color/white"
-            android:textAllCaps="false"
-            android:fontFamily=""/>
-
-    </LinearLayout>
-</ScrollView>
+</LinearLayout>

@@ -5,51 +5,64 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.example.footballreservation.R;
 import com.example.footballreservation.model.Field;
-import java.util.List;
+import com.google.android.material.button.MaterialButton;
 
-public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.ViewHolder> {
+import java.util.List;
+import java.util.Locale;
+
+public class FieldAdapter extends RecyclerView.Adapter<FieldAdapter.FieldViewHolder> {
 
     private List<Field> fields;
     private Context context;
+    private OnReserveClickListener listener;
 
-    public FieldAdapter(Context context, List<Field> fields) {
+    public FieldAdapter(Context context, List<Field> fields, OnReserveClickListener listener) {
         this.context = context;
         this.fields = fields;
+        this.listener = listener;
     }
 
     @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FieldViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_field, parent, false);
-        return new ViewHolder(view);
+        return new FieldViewHolder(view);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FieldViewHolder holder, int position) {
         Field field = fields.get(position);
-        holder.tvFieldName.setText(field.getName());
-        holder.tvFieldType.setText("Description: " + field.getType()); // This line matches the XML
-        holder.tvFieldPrice.setText("Price per hour: DH" + field.getPricePerHour());
+        holder.bind(field);
     }
-
 
     @Override
     public int getItemCount() {
         return fields.size();
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvFieldName, tvFieldType, tvFieldPrice;
+    class FieldViewHolder extends RecyclerView.ViewHolder {
+        TextView fieldName, fieldDescription, fieldPrice;
+        MaterialButton btnReserve;
 
-        public ViewHolder(@NonNull View itemView) {
+        FieldViewHolder(@NonNull View itemView) {
             super(itemView);
-            tvFieldName = itemView.findViewById(R.id.tvFieldName);
-            tvFieldType = itemView.findViewById(R.id.tvFieldType);
-            tvFieldPrice = itemView.findViewById(R.id.tvFieldPrice);
+            fieldName = itemView.findViewById(R.id.fieldName);
+            fieldDescription = itemView.findViewById(R.id.fieldDescription);
+            fieldPrice = itemView.findViewById(R.id.fieldPrice);
+            btnReserve = itemView.findViewById(R.id.btnReserve);
+        }
+
+        void bind(Field field) {
+            fieldName.setText(field.getName());
+            fieldDescription.setText(field.getType());
+            fieldPrice.setText(String.format(Locale.getDefault(), "$%.2f per hour", field.getPricePerHour()));
+            btnReserve.setOnClickListener(v -> listener.onReserveClick(field));
         }
     }
 }

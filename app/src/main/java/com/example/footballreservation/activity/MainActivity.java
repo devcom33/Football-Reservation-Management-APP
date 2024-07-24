@@ -15,7 +15,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final int SPLASH_TIME_OUT = 3000; // 3 seconds
     private ProgressBar progressBar;
-    private TextView tvAppName;
+    //private TextView tvAppName;
     private UserSession userSession;
 
     @Override
@@ -24,19 +24,19 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         progressBar = findViewById(R.id.progressBar);
-        tvAppName = findViewById(R.id.tvAppName);
+        //tvAppName = findViewById(R.id.tvAppName);
         userSession = new UserSession(this);
 
         // Start with the progress bar visible and the app name invisible
         progressBar.setVisibility(View.VISIBLE);
-        tvAppName.setVisibility(View.INVISIBLE);
+        //tvAppName.setVisibility(View.INVISIBLE);
         userSession.logoutUser();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
                 // Hide the progress bar and show the app name
                 progressBar.setVisibility(View.INVISIBLE);
-                tvAppName.setVisibility(View.VISIBLE);
+                //tvAppName.setVisibility(View.VISIBLE);
 
                 // Determine which activity to start based on login status
                 Intent intent;

@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
+import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
@@ -20,7 +21,7 @@ import com.example.footballreservation.util.UserSession;
 import java.util.List;
 
 public class ReservationActivity extends AppCompatActivity {
-    private Spinner spinnerField;
+    private ListView spinnerField;
     private DatePicker datePicker;
     private TimePicker startTimePicker, endTimePicker;
     private Button btnReserve;
@@ -53,8 +54,8 @@ public class ReservationActivity extends AppCompatActivity {
 
     private void loadFields() {
         List<Field> fields = dbHelper.getAllFields();
-        ArrayAdapter<Field> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, fields);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<Field> adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, fields);
+        //adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerField.setAdapter(adapter);
     }
 
