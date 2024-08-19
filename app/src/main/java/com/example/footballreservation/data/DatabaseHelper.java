@@ -79,7 +79,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 + KEY_TOTAL_PRICE + " REAL,"
                 + KEY_STATUS + " TEXT,"
                 + "FOREIGN KEY(" + KEY_USER_ID + ") REFERENCES " + TABLE_USERS + "(" + KEY_ID + "),"
-                + "FOREIGN KEY(" + KEY_FIELD_ID + ") REFERENCES " + TABLE_FIELDS + "(" + KEY_ID + ")"
+                + "FOREIGN KEY(" + KEY_FIELD_ID + ") REFERENCES " + TABLE_FIELDS + "(" + KEY_ID + ") ON DELETE CASCADE"
                 + ")";
         db.execSQL(CREATE_RESERVATIONS_TABLE);
 
@@ -89,47 +89,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (oldVersion < newVersion) {
-            db.execSQL("ALTER TABLE " + TABLE_FIELDS + " ADD COLUMN " + KEY_IS_AVAILABLE + " INTEGER DEFAULT 1");
-        }
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FIELDS);
+
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RESERVATIONS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_FIELDS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_USERS);
+
         onCreate(db);
     }
 
     private void addSampleData(SQLiteDatabase db) {
-        // Add admin user
+        // Add admin
         ContentValues adminValues = new ContentValues();
         adminValues.put(KEY_USERNAME, "admin");
         adminValues.put(KEY_PASSWORD, "admin123");
-        adminValues.put(KEY_EMAIL, "admin@example.com");
+        adminValues.put(KEY_EMAIL, "admin@fsa.ma");
         adminValues.put(KEY_IS_ADMIN, 1);
         db.insert(TABLE_USERS, null, adminValues);
-
-        // Add sample fields
-        String[] fieldNames = {"Field A", "Field B", "Field C"};
-        String[] fieldDescriptions = {
-                "Large field with artificial turf",
-                "Medium-sized field with natural grass",
-                "Small indoor field with synthetic surface"
-        };
-        double[] prices = {50.0, 40.0, 60.0};
-        String[] imageUrls = {
-                "https://example.com/field_a.jpg",
-                "https://example.com/field_b.jpg",
-                "https://example.com/field_c.jpg"
-        };
-
-        for (int i = 0; i < fieldNames.length; i++) {
-            ContentValues fieldValues = new ContentValues();
-            fieldValues.put(KEY_FIELD_NAME, fieldNames[i]);
-            fieldValues.put(KEY_DESCRIPTION, fieldDescriptions[i]);
-            fieldValues.put(KEY_PRICE_PER_HOUR, prices[i]);
-            fieldValues.put(KEY_IMAGE_URL, imageUrls[i]);
-            fieldValues.put(KEY_IS_AVAILABLE, 1); // Default to available
-            db.insert(TABLE_FIELDS, null, fieldValues);
-        }
     }
 
     // User methods
@@ -141,6 +116,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put(KEY_EMAIL, user.getEmail());
         values.put(KEY_IS_ADMIN, user.isAdmin() ? 1 : 0);
         return db.insert(TABLE_USERS, null, values);
+    }
+    public String getUserNameById(int userId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String query = "SELECT " + KEY_USERNAME + " FROM " + TABLE_USERS + " WHERE " + KEY_ID + " = ?";
+        Cursor cursor = db.rawQuery(query, new String[]{String.valueOf(userId)});
+        String userName = "Unknown";
+        if (cursor.moveToFirst()) {
+            userName = cursor.getString(0);
+        }
+        cursor.close();
+        return userName;
     }
 
     public User getUser(String username, String password) {
@@ -168,11 +154,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         String selectQuery = "SELECT * FROM " + TABLE_FIELDS;
         SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery(selectQuery, null);
-
         // Check if cursor is null or empty
         if (cursor != null && cursor.moveToFirst()) {
             do {
-                // Validate column count and indexes
                 if (cursor.getColumnCount() >= 6) { // Ensure there are at least 6 columns
                     Field field = new Field(
                             cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ID)),
@@ -190,7 +174,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         return fieldList;
     }
-
 
     public long addField(Field field) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -240,6 +223,39 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return reservations;
     }
+    public int getNonAdminUserCount() {
+        SQLiteDatabase db = this.getReadableDatabase();
+        String countQuery = "SELECT COUNT(*) FROM " + TABLE_USERS + " WHERE " + KEY_IS_ADMIN + " = ?";
+        Cursor cursor = db.rawQuery(countQuery, new String[]{"0"});
+
+        int count = 0;
+        if (cursor != null) {
+            if (cursor.moveToFirst()) {
+                count = cursor.getInt(0); // The count is in the first column
+            }
+            cursor.close();
+        }
+
+        return count;
+    }
+    public Field getFieldById(int fieldId) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.query(TABLE_FIELDS, null, KEY_ID + "=?",
+                new String[]{String.valueOf(fieldId)}, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            Field field = new Field(
+                    cursor.getInt(cursor.getColumnIndexOrThrow(KEY_ID)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(KEY_FIELD_NAME)),
+                    cursor.getString(cursor.getColumnIndexOrThrow(KEY_DESCRIPTION)),
+                    cursor.getDouble(cursor.getColumnIndexOrThrow(KEY_PRICE_PER_HOUR)),
+                    cursor.getInt(cursor.getColumnIndexOrThrow(KEY_IS_AVAILABLE)) != 0,
+                    cursor.getString(cursor.getColumnIndexOrThrow(KEY_IMAGE_URL))
+            );
+            cursor.close();
+            return field;
+        }
+        return null;
+    }
 
     public List<Reservation> getAllReservations() {
         List<Reservation> reservations = new ArrayList<>();
@@ -288,6 +304,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         cursor.close();
         return hasConflict;
     }
+    public boolean deleteField(int fieldId) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        boolean success = false;
+        db.beginTransaction();
+        try {
+            db.delete(TABLE_RESERVATIONS, KEY_FIELD_ID + "=?", new String[]{String.valueOf(fieldId)});
 
+            int rowsAffected = db.delete(TABLE_FIELDS, KEY_ID + "=?", new String[]{String.valueOf(fieldId)});
 
+            if (rowsAffected > 0) {
+                db.setTransactionSuccessful();
+                success = true;
+            }
+        } finally {
+            db.endTransaction();
+        }
+        return success;
+    }
 }

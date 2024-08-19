@@ -1,21 +1,22 @@
 package com.example.footballreservation.activity;
-import com.example.footballreservation.R;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
+
+import com.example.footballreservation.R;
 import com.example.footballreservation.data.DatabaseHelper;
-import com.example.footballreservation.fragment.StatisticsFragment;
-import com.example.footballreservation.fragment.ManageFieldsFragment;
 import com.example.footballreservation.fragment.ReservationsFragment;
+import com.example.footballreservation.fragment.ManageFieldsFragment;
+import com.example.footballreservation.fragment.StatisticsFragment;
 import com.example.footballreservation.util.UserSession;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public class AdminDashboardActivity extends AppCompatActivity {
@@ -34,7 +35,6 @@ public class AdminDashboardActivity extends AppCompatActivity {
         BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
         bottomNav.setOnItemSelectedListener(navListener);
 
-        // Load the default fragment
         loadFragment(new StatisticsFragment());
     }
 
@@ -51,6 +51,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
                         selectedFragment = new ManageFieldsFragment();
                     } else if (itemId == R.id.nav_reservations) {
                         selectedFragment = new ReservationsFragment();
+                    } else if (itemId == R.id.nav_logout) {
+                        logoutUser();
+                        return true;
                     }
 
                     if (selectedFragment != null) {
@@ -67,30 +70,20 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 .commit();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_admin_dashboard, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if (id == R.id.action_view_reservations) {
-            // TODO: Implement view all reservations functionality
-            return true;
-        } else if (id == R.id.action_logout) {
-            logoutUser();
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     private void logoutUser() {
-        session.logoutUser();
-        startActivity(new Intent(AdminDashboardActivity.this, LoginActivity.class));
-        finish();
+        new AlertDialog.Builder(this)
+                .setTitle("Logout")
+                .setMessage("Are you sure you want to logout?")
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        session.logoutUser();
+                        Intent intent = new Intent(AdminDashboardActivity.this, LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        finish();
+                    }
+                })
+                .setNegativeButton("No", null)
+                .show();
     }
 }

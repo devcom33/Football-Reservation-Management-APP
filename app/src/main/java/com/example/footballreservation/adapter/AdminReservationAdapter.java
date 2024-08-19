@@ -1,13 +1,13 @@
+// AdminReservationAdapter.java
 package com.example.footballreservation.adapter;
 
 import android.content.Context;
-import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 import com.example.footballreservation.R;
 import com.example.footballreservation.data.DatabaseHelper;
@@ -15,22 +15,29 @@ import com.example.footballreservation.model.Field;
 import com.example.footballreservation.model.Reservation;
 import java.util.List;
 
-public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.ViewHolder> {
+public class AdminReservationAdapter extends RecyclerView.Adapter<AdminReservationAdapter.ViewHolder> {
 
     private List<Reservation> reservations;
     private Context context;
+    private OnReservationActionListener actionListener;
     private DatabaseHelper dbHelper;
 
-    public ReservationAdapter(Context context, List<Reservation> reservations, DatabaseHelper dbHelper) {
+    public interface OnReservationActionListener {
+        void onValidate(Reservation reservation);
+        void onCancel(Reservation reservation);
+    }
+
+    public AdminReservationAdapter(Context context, List<Reservation> reservations, OnReservationActionListener listener, DatabaseHelper dbHelper) {
         this.context = context;
         this.reservations = reservations;
+        this.actionListener = listener;
         this.dbHelper = dbHelper;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_reservation, parent, false);
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_admin_reservation, parent, false);
         return new ViewHolder(view);
     }
 
@@ -38,10 +45,20 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Reservation reservation = reservations.get(position);
         Field field = dbHelper.getFieldById(reservation.getFieldId());
-        holder.tvFieldName.setText("Field: " + (field != null ? field.getName() : "Unknown"));
+        String userName = dbHelper.getUserNameById(reservation.getUserId());
+        holder.tvFieldName.setText("Field: "+ (field != null ? field.getName() : "Unknown"));
+        holder.tvUserName.setText("User: " + userName);
         holder.tvDate.setText("Date: " + reservation.getDate());
         holder.tvTime.setText("Time: " + reservation.getStartTime() + " - " + reservation.getEndTime());
-        updateStatus(holder.tvStatus, reservation.getStatus());
+        holder.tvStatus.setText("Status: " + reservation.getStatus());
+
+        holder.btnValidate.setOnClickListener(v -> actionListener.onValidate(reservation));
+        holder.btnCancel.setOnClickListener(v -> actionListener.onCancel(reservation));
+
+        // Disable buttons if the reservation is not pending
+        boolean isPending = reservation.getStatus().equalsIgnoreCase("Pending");
+        holder.btnValidate.setEnabled(isPending);
+        holder.btnCancel.setEnabled(isPending);
     }
 
     @Override
@@ -49,31 +66,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
         return reservations.size();
     }
 
-    private void updateStatus(TextView tvStatus, String status) {
-        GradientDrawable statusBackground = (GradientDrawable) tvStatus.getBackground();
-
-        switch (status.toLowerCase()) {
-            case "pending":
-                statusBackground.setColor(ContextCompat.getColor(context, R.color.colorPending));
-                tvStatus.setText("Pending");
-                break;
-            case "validated":
-                statusBackground.setColor(ContextCompat.getColor(context, R.color.colorValidated));
-                tvStatus.setText("Validated");
-                break;
-            case "cancelled":
-                statusBackground.setColor(ContextCompat.getColor(context, R.color.colorCancelled));
-                tvStatus.setText("Cancelled");
-                break;
-            default:
-                statusBackground.setColor(ContextCompat.getColor(context, R.color.colorPending));
-                tvStatus.setText(status);
-                break;
-        }
-    }
-
     public class ViewHolder extends RecyclerView.ViewHolder {
-        TextView tvFieldName, tvDate, tvTime, tvStatus;
+        TextView tvFieldName, tvDate, tvTime, tvStatus, tvUserName;
+        Button btnValidate, btnCancel;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -81,6 +76,9 @@ public class ReservationAdapter extends RecyclerView.Adapter<ReservationAdapter.
             tvDate = itemView.findViewById(R.id.tvDate);
             tvTime = itemView.findViewById(R.id.tvTime);
             tvStatus = itemView.findViewById(R.id.tvStatus);
+            tvUserName = itemView.findViewById(R.id.tvUserName);
+            btnValidate = itemView.findViewById(R.id.btnValidate);
+            btnCancel = itemView.findViewById(R.id.btnCancel);
         }
     }
 }

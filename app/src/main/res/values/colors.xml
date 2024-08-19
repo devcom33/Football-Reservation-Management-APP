@@ -15,5 +15,8 @@
     <color name="colorTextSecondary">#757575</color>
     <color name="colorDivider">#BDBDBD</color>
     <color name="colorError">#D32F2F</color>
+    <color name="colorPending">#CCCCCC</color>
+    <color name="colorValidated">#4CAF50</color>
+    <color name="colorCancelled">#F44336</color>
     <color name="colorSuccess">#388E3C</color>
 </resources>

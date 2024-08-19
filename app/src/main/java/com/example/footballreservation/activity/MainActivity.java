@@ -30,7 +30,7 @@ public class MainActivity extends AppCompatActivity {
         // Start with the progress bar visible and the app name invisible
         progressBar.setVisibility(View.VISIBLE);
         //tvAppName.setVisibility(View.INVISIBLE);
-        userSession.logoutUser();
+        //userSession.logoutUser();
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {

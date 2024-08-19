@@ -111,7 +111,7 @@ public class ReservationTimeActivity extends AppCompatActivity {
             throw new IllegalStateException("Selected field not found");
         }
 
-        // Calculate total price (assuming 1-hour increments)
+
         int startHour = Integer.parseInt(startTime.split(":")[0]);
         int endHour = Integer.parseInt(endTime.split(":")[0]);
         int hours = endHour - startHour;
@@ -120,7 +120,7 @@ public class ReservationTimeActivity extends AppCompatActivity {
         int userId = Integer.parseInt(userSession.getUserId());
 
         return new Reservation(
-                0, // ID will be set by the database
+                0,
                 userId,
                 fieldId,
                 date,

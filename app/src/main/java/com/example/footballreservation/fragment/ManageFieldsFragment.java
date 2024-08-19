@@ -2,6 +2,7 @@ package com.example.footballreservation.fragment;
 
 import static android.app.Activity.RESULT_OK;
 
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -12,6 +13,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+
+import com.example.footballreservation.adapter.FieldAdminActionListener;
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import android.widget.ImageView;
@@ -26,10 +29,13 @@ import com.example.footballreservation.data.DatabaseHelper;
 import com.example.footballreservation.model.Field;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class ManageFieldsFragment extends Fragment implements OnReserveClickListener {
+public class ManageFieldsFragment extends Fragment implements FieldAdminActionListener {
+    private FieldAdapterAdmin adapter;
+    private List<Field> fields;
 
     private EditText etFieldName, etFieldDescription, etFieldPrice, etFieldImageUrl;
     private SwitchMaterial swFieldAvailability;
@@ -46,7 +52,7 @@ public class ManageFieldsFragment extends Fragment implements OnReserveClickList
         View view = inflater.inflate(R.layout.fragment_manage_fields, container, false);
 
         dbHelper = new DatabaseHelper(requireContext());
-
+        fields = new ArrayList<>();
         initializeViews(view);
         btnSelectImage.setOnClickListener(v -> openImagePicker());
         btnAddField.setOnClickListener(v -> addField());
@@ -117,11 +123,49 @@ public class ManageFieldsFragment extends Fragment implements OnReserveClickList
             }
         });
     }
+    @Override
+    public void onDeleteClick(Field field) {
+        // Implement delete logic here
+        new AlertDialog.Builder(requireContext())
+                .setTitle("Delete Field")
+                .setMessage("Are you sure you want to delete this field?")
+                .setPositiveButton("Yes", (dialog, which) -> {
+                    deleteField(field);
+                })
+                .setNegativeButton("No", null)
+                .show();
+    }
 
+    private void deleteField(Field field) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                boolean deleted = dbHelper.deleteField(field.getId());
+                requireActivity().runOnUiThread(() -> {
+                    if (deleted) {
+                        int index = fields.indexOf(field);
+                        if (index != -1) {
+                            fields.remove(index);
+                            adapter.notifyItemRemoved(index);
+                        }
+                        Toast.makeText(requireContext(), "Field deleted successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(requireContext(), "Failed to delete field", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } catch (Exception e) {
+                Log.e("ManageFieldsFragment", "Error deleting field", e);
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(requireContext(), "Error occurred while deleting field", Toast.LENGTH_SHORT).show()
+                );
+            }
+        });
+    }
     private void loadFields() {
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<Field> fields = dbHelper.getAllFields();
+            List<Field> loadedFields = dbHelper.getAllFields();
             requireActivity().runOnUiThread(() -> {
+                fields.clear();
+                fields.addAll(loadedFields);
                 if (fields.isEmpty()) {
                     showInfoMessage("No fields available");
                 } else {
@@ -134,9 +178,13 @@ public class ManageFieldsFragment extends Fragment implements OnReserveClickList
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
     private void updateFieldList(List<Field> fields) {
-        FieldAdapterAdmin adapter = new FieldAdapterAdmin(requireContext(), fields, this);
-        rvFields.setLayoutManager(new LinearLayoutManager(requireContext()));
-        rvFields.setAdapter(adapter);
+        if (adapter == null) {
+            adapter = new FieldAdapterAdmin(requireContext(), fields, this);
+            rvFields.setLayoutManager(new LinearLayoutManager(requireContext()));
+            rvFields.setAdapter(adapter);
+        } else {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void clearInputFields() {
@@ -151,10 +199,7 @@ public class ManageFieldsFragment extends Fragment implements OnReserveClickList
     private void showToast(String message) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
     }
-    @Override
-    public void onReserveClick(Field field) {
-        Toast.makeText(requireContext(), "Reserved field: " + field.getName(), Toast.LENGTH_SHORT).show();
-    }
+
 
     //here for open the image picker
     private void openImagePicker() {

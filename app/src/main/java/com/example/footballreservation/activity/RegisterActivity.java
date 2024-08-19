@@ -51,7 +51,7 @@ public class RegisterActivity extends AppCompatActivity {
             return;
         }
 
-        User newUser = new User(0, username, password, false); // Using the new constructor
+        User newUser = new User(username, password, false); // Using the new constructor
         long result = dbHelper.addUser(newUser);
 
         if (result != -1) {

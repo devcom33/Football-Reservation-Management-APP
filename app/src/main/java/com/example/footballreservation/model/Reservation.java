@@ -8,7 +8,7 @@ public class Reservation {
     private String startTime;
     private String endTime;
     private double totalPrice;
-    private String status; // "Pending", "Confirmed", "Cancelled"
+    private String status;
 
     public Reservation(int id, int userId, int fieldId, String date, String startTime, String endTime, double totalPrice, String status) {
         this.id = id;

@@ -1,6 +1,7 @@
 // UserDashboardActivity.java
 package com.example.footballreservation.activity;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,6 +19,7 @@ import com.example.footballreservation.adapter.ReservationAdapter;
 import com.example.footballreservation.data.DatabaseHelper;
 import com.example.footballreservation.model.Reservation;
 import com.example.footballreservation.util.UserSession;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class UserDashboardActivity extends AppCompatActivity {
     private TextView tvWelcome;
     private DatabaseHelper dbHelper;
     private UserSession session;
+    private BottomNavigationView bottomNavigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +55,22 @@ public class UserDashboardActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        bottomNavigationView = findViewById(R.id.bottomNavView);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                int id = item.getItemId();
+                if (id == R.id.nav_home) {
+                    // You're already on the home screen, so you might not need to do anything
+                    return true;
+                } else if (id == R.id.nav_logout) {
+                    logout();
+                    return true;
+                }
+                return false;
+
+            }
+        });
     }
 
     @Override
@@ -64,12 +83,11 @@ public class UserDashboardActivity extends AppCompatActivity {
         try {
             int userId = Integer.parseInt(session.getUserId());
             List<Reservation> reservations = dbHelper.getReservationsByUser(userId);
-            ReservationAdapter adapter = new ReservationAdapter(this, reservations);
+            ReservationAdapter adapter = new ReservationAdapter(this, reservations, dbHelper);
             rvReservations.setLayoutManager(new LinearLayoutManager(this));
             rvReservations.setAdapter(adapter);
         } catch (NumberFormatException e) {
             Toast.makeText(this, "Error: Invalid user ID", Toast.LENGTH_SHORT).show();
-            // Handle the error appropriately, maybe log out the user or show an error message
         }
     }
 

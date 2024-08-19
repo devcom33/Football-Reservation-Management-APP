@@ -1,6 +1,5 @@
 package com.example.footballreservation.activity;
 
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -41,10 +40,7 @@ public class NewReservationActivity extends AppCompatActivity implements OnReser
         session = new UserSession(this);
 
         fieldList = findViewById(R.id.fieldList);
-
-
         loadFields();
-
     }
 
     private void loadFields() {

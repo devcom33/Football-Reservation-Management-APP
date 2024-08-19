@@ -14,8 +14,14 @@ public class User {
         this.email = email;
         this.isAdmin = isAdmin;
     }
+    public User(String username, String password, boolean isAdmin) {
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.isAdmin = isAdmin;
+    }
 
-    // Constructor without email (for registration)
+    // Constructor without email for registration
     public User(int id, String username, String password, boolean isAdmin) {
         this(id, username, password, "", isAdmin);
     }
